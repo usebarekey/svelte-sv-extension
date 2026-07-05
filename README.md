@@ -36,6 +36,47 @@ That is it. `.svelte` and `.sv` can now live side by side:
 </script>
 ```
 
+### With `svelte-plugin-composer`
+
+When your project uses `svelte-plugin-composer`, put `sv()` in the composed
+plugin list and keep `kit(...)` as the final SvelteKit handoff:
+
+```ts
+import adapter from "@sveltejs/adapter-auto";
+import { sv } from "svelte-sv-extension";
+import { compose, kit } from "svelte-plugin-composer";
+import { defineConfig } from "vite";
+
+export default defineConfig({
+  plugins: compose([
+    sv(),
+    kit({ adapter: adapter() }),
+  ]),
+});
+```
+
+The composer merges the extension list into the config passed to SvelteKit.
+
+## Editor Setup
+
+Build tooling and editor language modes are separate. This package makes
+SvelteKit and Vite compile `.sv` files, but VS Code and Cursor still need to
+know that `*.sv` should use the Svelte language mode.
+
+Add this to `.vscode/settings.json`:
+
+```json
+{
+  "files.associations": {
+    "*.sv": "svelte"
+  }
+}
+```
+
+After that, reopen the file or restart the Svelte language server. A dedicated
+VS Code extension could ship this association automatically, but a Svelte config
+helper cannot change editor settings from inside your Vite build.
+
 ## Routes
 
 SvelteKit route components can use either extension:
