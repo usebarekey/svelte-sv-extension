@@ -7,9 +7,11 @@
     "jsr:@std/internal@^1.0.14": "1.0.14",
     "jsr:@std/path@^1.1.2": "1.1.5",
     "jsr:@std/path@^1.1.5": "1.1.5",
-    "npm:@sveltejs/adapter-static@3": "3.0.10_@sveltejs+kit@2.69.0__svelte@5.56.4__vite@8.1.3_vite@8.1.3",
-    "npm:@sveltejs/kit@2": "2.69.0_svelte@5.56.4_vite@8.1.3",
+    "npm:@sveltejs/adapter-static@3": "3.0.10_@sveltejs+kit@2.69.0__svelte@5.56.4__typescript@6.0.3__vite@8.1.3_typescript@6.0.3",
+    "npm:@sveltejs/kit@2": "2.69.0_svelte@5.56.4_typescript@6.0.3_vite@8.1.3",
+    "npm:jsonc-parser@^3.3.1": "3.3.1",
     "npm:svelte@5": "5.56.4",
+    "npm:typescript@6": "6.0.3",
     "npm:vite@8": "8.1.3"
   },
   "jsr": {
@@ -188,13 +190,13 @@
         "acorn"
       ]
     },
-    "@sveltejs/adapter-static@3.0.10_@sveltejs+kit@2.69.0__svelte@5.56.4__vite@8.1.3_vite@8.1.3": {
+    "@sveltejs/adapter-static@3.0.10_@sveltejs+kit@2.69.0__svelte@5.56.4__typescript@6.0.3__vite@8.1.3_typescript@6.0.3": {
       "integrity": "sha512-7D9lYFWJmB7zxZyTE/qxjksvMqzMuYrrsyh1f4AlZqeZeACPRySjbC3aFiY55wb1tWUaKOQG9PVbm74JcN2Iew==",
       "dependencies": [
         "@sveltejs/kit"
       ]
     },
-    "@sveltejs/kit@2.69.0_svelte@5.56.4_vite@8.1.3": {
+    "@sveltejs/kit@2.69.0_svelte@5.56.4_typescript@6.0.3_vite@8.1.3": {
       "integrity": "sha512-RD4ntr/QiXsU5V0ADEoZ+R2lyPlwZbENJ6ss0YtgQXqWn3+U9PnU/EeitysgpVbDV8d9XTmFqdTMKOTOe3yb0A==",
       "dependencies": [
         "@standard-schema/spec",
@@ -211,7 +213,11 @@
         "set-cookie-parser",
         "sirv",
         "svelte",
+        "typescript",
         "vite"
+      ],
+      "optionalPeers": [
+        "typescript"
       ],
       "bin": true
     },
@@ -294,6 +300,9 @@
       "dependencies": [
         "@types/estree"
       ]
+    },
+    "jsonc-parser@3.3.1": {
+      "integrity": "sha512-HUgH65KyejrUFPvHFPbqOY0rsFip3Bo5wb4ngvdi1EpCYWUQDC5V+Y7mZws+DLkr4M//zQJoanu1SP+87Dv1oQ=="
     },
     "kleur@4.1.5": {
       "integrity": "sha512-o+NO+8WrRiQEE4/7nwRJhN1HWpVmJm511pBHUxPLtp0BUISzlBplORYSmTclCnJvQq2tKu/sgl3xVpkc7ZWuQQ=="
@@ -478,6 +487,10 @@
     "tslib@2.8.1": {
       "integrity": "sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w=="
     },
+    "typescript@6.0.3": {
+      "integrity": "sha512-y2TvuxSZPDyQakkFRPZHKFm+KKVqIisdg9/CZwm9ftvKXLP8NRWj38/ODjNbr43SsoXqNuAisEf1GdCxqWcdBw==",
+      "bin": true
+    },
     "vite@8.1.3": {
       "integrity": "sha512-Ds+gBRbj0lwRO2Y5hwnUBdxSwlAve9LeRyU4sNnAr0ewW0gWF0n5bgXgUzbgZ49MV9BVUAQUFYVcDUcilUExMA==",
       "dependencies": [
@@ -510,13 +523,17 @@
       "jsr:@std/assert@^1.0.15",
       "jsr:@std/fs@^1.0.19",
       "jsr:@std/path@^1.1.2",
-      "npm:@sveltejs/kit@2"
+      "npm:@sveltejs/kit@2",
+      "npm:jsonc-parser@^3.3.1",
+      "npm:typescript@6"
     ],
     "packageJson": {
       "dependencies": [
         "npm:@sveltejs/adapter-static@3",
         "npm:@sveltejs/kit@2",
+        "npm:jsonc-parser@^3.3.1",
         "npm:svelte@5",
+        "npm:typescript@6",
         "npm:vite@8"
       ]
     }
