@@ -9,7 +9,7 @@ handle `.sv` files, including route components such as `+page.sv`.
 ## Install
 
 ```sh
-npm install -D svelte-sv-extension
+pnpm add -D svelte-sv-extension
 ```
 
 ## Setup
@@ -21,9 +21,9 @@ import adapter from "@sveltejs/adapter-auto";
 import { sv } from "svelte-sv-extension";
 
 export default sv({
-  kit: {
-    adapter: adapter(),
-  },
+	kit: {
+		adapter: adapter(),
+	},
 });
 ```
 
@@ -48,10 +48,7 @@ import { compose, kit } from "svelte-plugin-composer";
 import { defineConfig } from "vite";
 
 export default defineConfig({
-  plugins: compose([
-    sv(),
-    kit({ adapter: adapter() }),
-  ]),
+	plugins: compose([sv(), kit({ adapter: adapter() })]),
 });
 ```
 
@@ -66,14 +63,14 @@ know that `*.sv` should use the Svelte language mode.
 Run the init command:
 
 ```sh
-npx svelte-sv-extension init
+pnpm exec svelte-sv-extension init
 ```
 
 That writes `.vscode/settings.json` for the current project. To apply the same
 setting globally, pass `--global` and choose the editor:
 
 ```sh
-npx svelte-sv-extension init --global --editor cursor
+pnpm exec svelte-sv-extension init --global --editor cursor
 ```
 
 Supported editors are `vscode`, `vscode-insiders`, `cursor`, `vscodium`, and
@@ -83,9 +80,9 @@ The command writes this workspace setting by default:
 
 ```json
 {
-  "files.associations": {
-    "*.sv": "svelte"
-  }
+	"files.associations": {
+		"*.sv": "svelte"
+	}
 }
 ```
 

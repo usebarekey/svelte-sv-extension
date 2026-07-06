@@ -1,106 +1,104 @@
-import { assert, assertEquals, assertExists } from "@std/assert";
-import { sv } from "../src/mod.ts";
+import { sv } from "../src/mod";
+import { describe, expect, test } from "vitest";
 
-Deno.test("sv enables .svelte and .sv by default", () => {
-  const config = sv({});
+describe("sv", () => {
+	test("enables .svelte and .sv by default", () => {
+		const config = sv({});
 
-  assertEquals(config.extensions, [".svelte", ".sv"]);
-});
+		expect(config.extensions).toEqual([".svelte", ".sv"]);
+	});
 
-Deno.test("sv preserves .svelte and appends .sv once", () => {
-  const config = sv({
-    extensions: [".svelte"],
-  });
+	test("preserves .svelte and appends .sv once", () => {
+		const config = sv({
+			extensions: [".svelte"],
+		});
 
-  assertEquals(config.extensions, [".svelte", ".sv"]);
-});
+		expect(config.extensions).toEqual([".svelte", ".sv"]);
+	});
 
-Deno.test("sv preserves custom extensions", () => {
-  const config = sv({
-    extensions: [".svelte", ".md"],
-  });
+	test("preserves custom extensions", () => {
+		const config = sv({
+			extensions: [".svelte", ".md"],
+		});
 
-  assertEquals(config.extensions, [".svelte", ".md", ".sv"]);
-});
+		expect(config.extensions).toEqual([".svelte", ".md", ".sv"]);
+	});
 
-Deno.test("sv does not duplicate .sv", () => {
-  const config = sv({
-    extensions: [".svelte", ".sv"],
-  });
+	test("does not duplicate .sv", () => {
+		const config = sv({
+			extensions: [".svelte", ".sv"],
+		});
 
-  assertEquals(config.extensions, [".svelte", ".sv"]);
-});
+		expect(config.extensions).toEqual([".svelte", ".sv"]);
+	});
 
-Deno.test("sv preserves fields without mutating the input config", () => {
-  const kit = { appDir: "app" };
-  const vitePlugin = { inspector: true };
-  const config = {
-    extensions: [".svelte"],
-    kit,
-    vitePlugin,
-    custom: "value",
-  };
+	test("preserves fields without mutating the input config", () => {
+		const kit = { appDir: "app" };
+		const vite_plugin = { inspector: true };
+		const config = {
+			extensions: [".svelte"],
+			kit,
+			vitePlugin: vite_plugin,
+			custom: "value",
+		};
 
-  const result = sv(config);
+		const result = sv(config);
 
-  assert(result !== config);
-  assert(result.kit !== kit);
-  assertEquals(result.kit.appDir, "app");
-  assertEquals(result.vitePlugin, vitePlugin);
-  assertEquals(result.custom, "value");
-  assertEquals(config.extensions, [".svelte"]);
-  assertEquals(result.extensions, [".svelte", ".sv"]);
-});
+		expect(result).not.toBe(config);
+		expect(result.kit).not.toBe(kit);
+		expect(result.kit.appDir).toBe("app");
+		expect(result.vitePlugin).toBe(vite_plugin);
+		expect(result.custom).toBe("value");
+		expect(config.extensions).toEqual([".svelte"]);
+		expect(result.extensions).toEqual([".svelte", ".sv"]);
+	});
 
-Deno.test("sv includes .sv files in SvelteKit's generated tsconfig", () => {
-  const config = sv({});
-  const configure_typescript = config.kit.typescript?.config;
+	test("includes .sv files in SvelteKit's generated tsconfig", () => {
+		const config = sv({});
+		const configure_typescript = config.kit.typescript?.config;
 
-  assertExists(configure_typescript);
+		expect(configure_typescript).toBeDefined();
 
-  const tsconfig = configure_typescript({
-    include: [
-      "../src/**/*.ts",
-      "../src/**/*.svelte",
-      "../tests/**/*.svelte",
-    ],
-  });
+		const tsconfig = configure_typescript?.({
+			include: ["../src/**/*.ts", "../src/**/*.svelte", "../tests/**/*.svelte"],
+		});
 
-  assertEquals(tsconfig?.include, [
-    "../src/**/*.ts",
-    "../src/**/*.svelte",
-    "../tests/**/*.svelte",
-    "../src/**/*.sv",
-    "../tests/**/*.sv",
-  ]);
-});
+		expect(tsconfig?.include).toEqual([
+			"../src/**/*.ts",
+			"../src/**/*.svelte",
+			"../tests/**/*.svelte",
+			"../src/**/*.sv",
+			"../tests/**/*.sv",
+		]);
+	});
 
-Deno.test("sv preserves and composes an existing TypeScript config hook", () => {
-  const config = sv({
-    kit: {
-      typescript: {
-        config: (tsconfig) => ({
-          ...tsconfig,
-          include: [
-            ...(Array.isArray(tsconfig.include) ? tsconfig.include : []),
-            "../custom/**/*.svelte",
-          ],
-        }),
-      },
-    },
-  });
-  const configure_typescript = config.kit.typescript?.config;
+	test("preserves and composes an existing TypeScript config hook", () => {
+		const config = sv({
+			kit: {
+				typescript: {
+					config: (tsconfig) => ({
+						...tsconfig,
+						include: [
+							...(Array.isArray(tsconfig.include) ? tsconfig.include : []),
+							"../custom/**/*.svelte",
+						],
+					}),
+				},
+			},
+		});
+		const configure_typescript = config.kit.typescript?.config;
 
-  assertExists(configure_typescript);
+		expect(configure_typescript).toBeDefined();
 
-  const tsconfig = configure_typescript({
-    include: ["../src/**/*.svelte"],
-  });
+		const tsconfig = configure_typescript?.({
+			include: ["../src/**/*.svelte"],
+		});
 
-  assertEquals(tsconfig?.include, [
-    "../src/**/*.svelte",
-    "../custom/**/*.svelte",
-    "../src/**/*.sv",
-    "../custom/**/*.sv",
-  ]);
+		expect(tsconfig?.include).toEqual([
+			"../src/**/*.svelte",
+			"../custom/**/*.svelte",
+			"../src/**/*.sv",
+			"../custom/**/*.sv",
+		]);
+	});
 });

@@ -1,101 +1,118 @@
-import { assertEquals, assertStringIncludes } from "@std/assert";
 import { join } from "node:path";
+import { tmpdir } from "node:os";
+import { describe, expect, test } from "vitest";
+import { mkdtemp, readFile as read_file, rm } from "node:fs/promises";
 import {
-  init_sv_extension,
-  parse_sv_extension_cli_args,
-  patch_sv_extension_vscode_settings,
-  resolve_vscode_settings_path,
-} from "../src/init.ts";
+	init_sv_extension,
+	parse_sv_extension_cli_args,
+	patch_sv_extension_vscode_settings,
+	resolve_vscode_settings_path,
+} from "../src/init";
 
-Deno.test("patch_sv_extension_vscode_settings creates .sv association", () => {
-  const result = patch_sv_extension_vscode_settings("{}\n");
+describe("init", () => {
+	test("patch_sv_extension_vscode_settings creates .sv association", () => {
+		const result = patch_sv_extension_vscode_settings("{}\n");
 
-  assertEquals(result.changed, true);
-  assertStringIncludes(result.text, '"*.sv": "svelte"');
-});
+		expect(result.changed).toBe(true);
+		expect(result.text).toContain('"*.sv": "svelte"');
+	});
 
-Deno.test("patch_sv_extension_vscode_settings preserves and overrides associations", () => {
-  const result = patch_sv_extension_vscode_settings(`{
-    // keep this comment
-    "files.associations": {
-      "*.foo": "typescript",
-      "*.sv": "plaintext"
-    }
-  }
+	test("patch_sv_extension_vscode_settings preserves and overrides associations", () => {
+		const result = patch_sv_extension_vscode_settings(`{
+	// keep this comment
+	"files.associations": {
+		"*.foo": "typescript",
+		"*.sv": "plaintext"
+	}
+}
 `);
 
-  assertEquals(result.changed, true);
-  assertStringIncludes(result.text, "// keep this comment");
-  assertStringIncludes(result.text, '"*.foo": "typescript"');
-  assertStringIncludes(result.text, '"*.sv": "svelte"');
-});
+		expect(result.changed).toBe(true);
+		expect(result.text).toContain("// keep this comment");
+		expect(result.text).toContain('"*.foo": "typescript"');
+		expect(result.text).toContain('"*.sv": "svelte"');
+	});
 
-Deno.test("init_sv_extension writes local VS Code settings", async () => {
-  const root = await Deno.makeTempDir();
-  const result = await init_sv_extension({ cwd: root });
-  const settings_path = join(root, ".vscode", "settings.json");
-  const settings_text = await Deno.readTextFile(settings_path);
+	test("patch_sv_extension_vscode_settings rejects non-object settings", () => {
+		expect(() => patch_sv_extension_vscode_settings("[]\n")).toThrow(
+			"VS Code settings must be a JSON object.",
+		);
+	});
 
-  assertEquals(result.settings_path, settings_path);
-  assertEquals(result.scope, "local");
-  assertEquals(result.changed, true);
-  assertStringIncludes(settings_text, '"*.sv": "svelte"');
-});
+	test("patch_sv_extension_vscode_settings rejects non-object file associations", () => {
+		const settings_text = `{
+	"files.associations": ["*.sv"]
+}
+`;
 
-Deno.test("resolve_vscode_settings_path supports Windows VS Code-family editors", () => {
-  const path = resolve_vscode_settings_path({
-    editor: "cursor",
-    platform: "win32",
-    env: { APPDATA: "C:\\Users\\Sander\\AppData\\Roaming" },
-    home_dir: "C:\\Users\\Sander",
-  });
+		expect(() => patch_sv_extension_vscode_settings(settings_text)).toThrow(
+			'VS Code setting "files.associations" must be a JSON object when present.',
+		);
+	});
 
-  assertEquals(
-    path,
-    "C:\\Users\\Sander\\AppData\\Roaming\\Cursor\\User\\settings.json",
-  );
-});
+	test("init_sv_extension writes local VS Code settings", async () => {
+		const root = await mkdtemp(join(tmpdir(), "svelte-sv-extension-init-"));
 
-Deno.test("resolve_vscode_settings_path supports macOS VS Code-family editors", () => {
-  const path = resolve_vscode_settings_path({
-    editor: "vscodium",
-    platform: "darwin",
-    home_dir: "/Users/sander",
-  });
+		try {
+			const result = await init_sv_extension({ cwd: root });
+			const settings_path = join(root, ".vscode", "settings.json");
+			const settings_text = await read_file(settings_path, "utf8");
 
-  assertEquals(
-    path,
-    "/Users/sander/Library/Application Support/VSCodium/User/settings.json",
-  );
-});
+			expect(result.settings_path).toBe(settings_path);
+			expect(result.scope).toBe("local");
+			expect(result.changed).toBe(true);
+			expect(settings_text).toContain('"*.sv": "svelte"');
+		} finally {
+			await rm(root, { force: true, recursive: true });
+		}
+	});
 
-Deno.test("resolve_vscode_settings_path supports Linux VS Code-family editors", () => {
-  const path = resolve_vscode_settings_path({
-    editor: "windsurf",
-    platform: "linux",
-    env: { XDG_CONFIG_HOME: "/home/sander/.config/custom" },
-    home_dir: "/home/sander",
-  });
+	test("resolve_vscode_settings_path supports Windows VS Code-family editors", () => {
+		const path = resolve_vscode_settings_path({
+			editor: "cursor",
+			platform: "win32",
+			env: { APPDATA: "C:\\Users\\Sander\\AppData\\Roaming" },
+			home_dir: "C:\\Users\\Sander",
+		});
 
-  assertEquals(
-    path,
-    "/home/sander/.config/custom/Windsurf/User/settings.json",
-  );
-});
+		expect(path).toBe("C:\\Users\\Sander\\AppData\\Roaming\\Cursor\\User\\settings.json");
+	});
 
-Deno.test("parse_sv_extension_cli_args parses init flags", () => {
-  const options = parse_sv_extension_cli_args([
-    "init",
-    "--global",
-    "--editor",
-    "cursor",
-    "--cwd",
-    "fixture",
-  ]);
+	test("resolve_vscode_settings_path supports macOS VS Code-family editors", () => {
+		const path = resolve_vscode_settings_path({
+			editor: "vscodium",
+			platform: "darwin",
+			home_dir: "/Users/sander",
+		});
 
-  assertEquals(options, {
-    global: true,
-    editor: "cursor",
-    cwd: "fixture",
-  });
+		expect(path).toBe("/Users/sander/Library/Application Support/VSCodium/User/settings.json");
+	});
+
+	test("resolve_vscode_settings_path supports Linux VS Code-family editors", () => {
+		const path = resolve_vscode_settings_path({
+			editor: "windsurf",
+			platform: "linux",
+			env: { XDG_CONFIG_HOME: "/home/sander/.config/custom" },
+			home_dir: "/home/sander",
+		});
+
+		expect(path).toBe("/home/sander/.config/custom/Windsurf/User/settings.json");
+	});
+
+	test("parse_sv_extension_cli_args parses init flags", () => {
+		const options = parse_sv_extension_cli_args([
+			"init",
+			"--global",
+			"--editor",
+			"cursor",
+			"--cwd",
+			"fixture",
+		]);
+
+		expect(options).toEqual({
+			global: true,
+			editor: "cursor",
+			cwd: "fixture",
+		});
+	});
 });
