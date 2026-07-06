@@ -1,6 +1,6 @@
 {
 	"name": "svelte-sv-extension",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "Use .sv files as Svelte components in SvelteKit.",
 	"license": "BSD-3-Clause",
 	"repository": {
