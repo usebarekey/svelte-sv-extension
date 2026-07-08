@@ -86,6 +86,17 @@ The command writes this workspace setting by default:
 }
 ```
 
+Emmet uses a separate language mapping. If abbreviations such as `div` do not
+expand in `.sv` files, add this VS Code or Cursor setting too:
+
+```json
+{
+	"emmet.includeLanguages": {
+		"svelte": "html"
+	}
+}
+```
+
 After that, reopen the file or restart the Svelte language server.
 
 ## Routes
